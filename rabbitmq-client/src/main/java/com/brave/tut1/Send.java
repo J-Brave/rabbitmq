@@ -1,8 +1,8 @@
 package com.brave.tut1;
 
+import com.brave.util.ConnectionUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 
 /**
  * @author: J-Brave
@@ -17,12 +17,10 @@ public class Send {
     public static void main(String[] args) {
 
         try {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            factory.setPort(5672);
-            factory.setUsername("brave");
-            factory.setPassword("Brave");
-            Connection connection = factory.newConnection();
+            Connection connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                return;
+            }
             Channel channel = connection.createChannel();
             //声明要发送的队列
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);

@@ -1,8 +1,8 @@
 package com.brave.tut1;
 
+import com.brave.util.ConnectionUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
 import java.nio.charset.StandardCharsets;
@@ -21,23 +21,22 @@ public class Recv {
     public static void main(String[] args) {
 
         try {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            factory.setPort(5672);
-            factory.setUsername("brave");
-            factory.setPassword("Brave");
-            Connection connection = factory.newConnection();
+            Connection connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                return;
+            }
             Channel channel = connection.createChannel();
-            //消费者同样需要生命队列
+            //消费者同样需要声明队列
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                System.out.println("[x] Recevied ' " + message + "'");
+                System.out.println("[x] Received ' " + message + "'");
             };
             channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {});
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
